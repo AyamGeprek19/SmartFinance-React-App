@@ -25,4 +25,12 @@ app.post(['/api/login', '/login', '/api/auth/login', '/auth/login'], async (req,
   }
 });
 
+// Tambahkan tepat sebelum export default app;
+app.use((req, res, next) => {
+  // Jika Vercel memotong prefix /api, kembalikan ke next() atau tangani 404 dari Express
+  if (req.path.startsWith('/api')) return next();
+  req.url = `/api${req.url}`;
+  return next();
+});
+
 export default app;
