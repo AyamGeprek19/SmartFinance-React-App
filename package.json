@@ -4,9 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:client\"",
     "dev:api": "node server/index.js",
-    "dev:all": "concurrently \"npm run dev:api\" \"npm run dev\"",
+    "dev:client": "vite",
+    "dev:all": "npm run dev",
     "start": "node server/index.js",
     "build": "vite build",
     "preview": "vite preview",
