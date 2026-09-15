@@ -37,7 +37,11 @@ export function setAuthCookie(res, user) {
 }
 
 export function clearAuthCookie(res) {
-  res.clearCookie(COOKIE_NAME);
+  res.clearCookie(COOKIE_NAME, {
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  });
 }
 
 export function requireAuth(req, res, next) {
