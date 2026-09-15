@@ -24,3 +24,5 @@ app.post(['/api/login', '/login', '/api/auth/login', '/auth/login'], async (req,
     return next(error);
   }
 });
+
+export default app;
