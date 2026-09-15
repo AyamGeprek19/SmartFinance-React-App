@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import { apiRequest } from './lib/api';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -8,8 +9,8 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/auth/me', { credentials: 'include' })
-      .then((response) => (response.ok ? response.json() : null))
+    apiRequest('/auth/me')
+      .catch(() => null)
       .then((data) => {
         if (data?.user) {
           setUser(data.user);
@@ -20,7 +21,7 @@ export default function App() {
   }, []);
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    await apiRequest('/auth/logout', { method: 'POST' });
     setUser(null);
     setIsAuthenticated(false);
   };

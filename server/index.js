@@ -1,4 +1,6 @@
 import 'dotenv/config';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -211,6 +213,17 @@ app.delete('/api/budgets/:id', requireAuth, async (req, res, next) => {
     return next(error);
   }
 });
+
+if (process.env.NODE_ENV === 'production') {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  app.use(express.static(path.join(root, 'dist')));
+  app.use((req, res, next) => {
+    if (req.method === 'GET' && req.accepts('html')) {
+      return res.sendFile(path.join(root, 'dist', 'index.html'));
+    }
+    return next();
+  });
+}
 
 app.use((error, _req, res, _next) => {
   console.error(error);

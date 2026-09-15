@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { apiRequest } from '../lib/api';
 
 const money = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
 const categories = ['Gaji', 'Bonus', 'Usaha', 'Perumahan & Sewa', 'Makanan & Minuman', 'Transportasi', 'Belanja', 'Tagihan', 'Lainnya'];
@@ -35,14 +36,10 @@ export default function Dashboard({ user, onLogout }) {
   const [budgetForm, setBudgetForm] = useState({ category: categories[3], amount: '', month: monthNow() });
 
   const loadTransactions = useCallback(async () => {
-    const response = await fetch('/api/transactions', { credentials: 'include' });
-    if (!response.ok) throw new Error('Transaksi tidak dapat dimuat.');
-    setTransactions((await response.json()).transactions);
+    setTransactions((await apiRequest('/transactions')).transactions);
   }, []);
   const loadBudgets = useCallback(async () => {
-    const response = await fetch(`/api/budgets?month=${budgetForm.month}`, { credentials: 'include' });
-    if (!response.ok) throw new Error('Budget tidak dapat dimuat.');
-    setBudgets((await response.json()).budgets);
+    setBudgets((await apiRequest(`/budgets?month=${budgetForm.month}`)).budgets);
   }, [budgetForm.month]);
 
   useEffect(() => { loadTransactions().catch((e) => setError(e.message)); loadBudgets().catch((e) => setError(e.message)); const timer = setInterval(() => { loadTransactions().catch(() => {}); loadBudgets().catch(() => {}); }, 10000); return () => clearInterval(timer); }, [loadTransactions, loadBudgets]);
@@ -57,16 +54,10 @@ export default function Dashboard({ user, onLogout }) {
     setError('');
     setSavingTransaction(true);
     try {
-      const response = await fetch('/api/transactions', {
+      const data = await apiRequest('/transactions', {
         method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, amount: Number(form.amount) }),
       });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(data.error || `Gagal menyimpan transaksi (HTTP ${response.status}).`);
-      }
 
       // Reload from Neon so the list never relies only on optimistic UI state.
       await loadTransactions();
@@ -81,12 +72,13 @@ export default function Dashboard({ user, onLogout }) {
   }
   async function addBudget(event) {
     event.preventDefault(); setError('');
-    const response = await fetch('/api/budgets', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(budgetForm) });
-    const data = await response.json(); if (!response.ok) return setError(data.error);
-    await loadBudgets(); setBudgetForm({ ...budgetForm, amount: '' });
+    try {
+      await apiRequest('/budgets', { method: 'POST', body: JSON.stringify(budgetForm) });
+      await loadBudgets(); setBudgetForm({ ...budgetForm, amount: '' });
+    } catch (saveError) { setError(saveError.message); }
   }
   async function remove(id, type) {
-    await fetch(`/api/${type}/${id}`, { method: 'DELETE', credentials: 'include' });
+    await apiRequest(`/${type}/${id}`, { method: 'DELETE' });
     if (type === 'transactions') setTransactions((current) => current.filter((item) => item.id !== id));
     else setBudgets((current) => current.filter((item) => item.id !== id));
   }

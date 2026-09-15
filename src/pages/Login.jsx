@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiRequest } from '../lib/api';
 
 export default function Login({ onLogin }) {
   const [username, setUsername] = useState('');
@@ -11,14 +12,10 @@ export default function Login({ onLogin }) {
     setError('');
     setSubmitting(true);
     try {
-      const response = await fetch('/api/auth/login', {
+      const data = await apiRequest('/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ username, password }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Unable to sign in.');
       onLogin(data.user);
     } catch (loginError) {
       setError(loginError.message);
