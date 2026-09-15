@@ -16,14 +16,20 @@ import {
 
 const app = express();
 const port = Number(process.env.PORT || 3001);
-const allowedOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
-if (process.env.NODE_ENV === 'production' && !process.env.CLIENT_ORIGIN) {
+if (process.env.NODE_ENV === 'production' && allowedOrigins.length === 0) {
   throw new Error('CLIENT_ORIGIN is required in production.');
 }
 
 app.use(cors({
-  origin: allowedOrigin,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Origin is not allowed by CLIENT_ORIGIN.'));
+  },
   credentials: true,
 }));
 app.disable('x-powered-by');

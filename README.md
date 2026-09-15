@@ -50,3 +50,9 @@ The API supports:
 - The API deployment command is `npm start`. A static host such as GitHub Pages
   cannot run this Express API; deploy the API to a Node host and configure the
   frontend proxy/API URL for that host.
+- `VITE_API_URL` may be `/api`, `https://api.example.com`, or
+  `https://api.example.com/api`; the frontend normalizes all three forms to the
+  API routes.
+- If frontend and API are on different domains, set `VITE_API_URL` to the API
+  URL and set `CLIENT_ORIGIN` on the API to the exact frontend URL. Multiple
+  frontend URLs may be comma-separated in `CLIENT_ORIGIN`.
