@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { sql } from './db.js'; // Sesuaikan path db kamu jika berbeda
-import { verifyPassword, setAuthCookie, publicUser } from './auth.js'; // Sesuaikan path auth kamu jika berbeda
+import { sql } from './db.js';
+import { verifyPassword, setAuthCookie } from './auth.js'; // Hapus publicUser dari sini
 
 dotenv.config();
 
@@ -13,7 +13,7 @@ const app = express();
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
-// 3. Middleware Penangan Prefix /api (Taruh sebelum route)
+// 3. Middleware Penangan Prefix /api (Sebelum route)
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) return next();
   req.url = `/api${req.url}`;
@@ -49,7 +49,10 @@ app.post(['/api/login', '/login', '/api/auth/login', '/auth/login'], async (req,
     }
 
     setAuthCookie(res, user);
-    return res.json({ user: publicUser(user) });
+
+    // Hapus password_hash dari response demi keamanan (pengganti publicUser)
+    const { password_hash, ...safeUser } = user;
+    return res.json({ user: safeUser });
   } catch (error) {
     return next(error);
   }
