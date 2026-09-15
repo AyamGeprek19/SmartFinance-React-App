@@ -60,3 +60,7 @@ The API supports:
   generated `dist` directory. Vite embeds these values at build time; changing
   the hosting environment without rebuilding leaves the old API URL in the
   browser.
+- For local production-preview testing, use `npm run preview`; its `/api`
+  proxy also points to the local API on port `3001`. Do not use a generic
+  static server for `dist` unless `VITE_API_URL` points to a separately
+  deployed API.
