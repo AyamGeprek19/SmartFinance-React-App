@@ -23,7 +23,7 @@ export async function apiRequest(path, options = {}) {
   const contentType = response.headers.get('content-type') || '';
   const data = contentType.includes('application/json') ? await response.json() : null;
   if (!response.ok) {
-    throw new Error(data?.error || `API tidak tersedia (HTTP ${response.status}).`);
+    throw new Error(data?.error || `API tidak tersedia (HTTP ${response.status}) pada ${apiBase}. Periksa VITE_API_URL dan deploy ulang frontend.`);
   }
   return data;
 }

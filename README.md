@@ -56,3 +56,7 @@ The API supports:
 - If frontend and API are on different domains, set `VITE_API_URL` to the API
   URL and set `CLIENT_ORIGIN` on the API to the exact frontend URL. Multiple
   frontend URLs may be comma-separated in `CLIENT_ORIGIN`.
+- After changing any `VITE_*` variable, run `npm run build` and redeploy the
+  generated `dist` directory. Vite embeds these values at build time; changing
+  the hosting environment without rebuilding leaves the old API URL in the
+  browser.

@@ -55,7 +55,7 @@ app.get('/api/health', async (_req, res, next) => {
   }
 });
 
-app.post('/api/auth/login', async (req, res, next) => {
+app.post(['/api/auth/login', '/auth/login'], async (req, res, next) => {
   try {
     const username = String(req.body.username || '').trim();
     const password = String(req.body.password || '');
@@ -81,12 +81,12 @@ app.post('/api/auth/login', async (req, res, next) => {
   }
 });
 
-app.post('/api/auth/logout', (_req, res) => {
+app.post(['/api/auth/logout', '/auth/logout'], (_req, res) => {
   clearAuthCookie(res);
   res.status(204).end();
 });
 
-app.get('/api/auth/me', requireAuth, async (req, res, next) => {
+app.get(['/api/auth/me', '/auth/me'], requireAuth, async (req, res, next) => {
   try {
     const rows = await sql`
       SELECT id, username, email, role FROM users WHERE id = ${req.auth.sub} LIMIT 1
